@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../redux/cartSlice";
 import { ProductCard, AddToCartModal } from "../../../pages/ShopPage";
@@ -7,11 +7,23 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { products } from "../../../data/Data";
+import { fetchProducts } from "../../../api/productService";
+// import { products } from "../../../data/Data";
 
 // import { AddToCartModal } from "../../../pages/ShopPage";
 
 const ProductsSection = () => {
+	const [apiProducts, setApiProducts] = useState([]);
+
+	// ⭐ Fetch products
+	useEffect(() => {
+		fetchProducts()
+			.then((res) => {
+				console.log("API PRODUCTS:", res.data);
+				setApiProducts(res.data);
+			})
+			.catch((err) => console.error("API ERROR:", err));
+	}, []);
 	const dispatch = useDispatch();
 
 	// Modal state
@@ -154,36 +166,44 @@ const ProductsSection = () => {
 										nextEl: nextBtn1.current,
 									}}
 								>
-									{products.map((product) => (
-										<SwiperSlide key={product.id}>
-											<div className=" ul-product-card-wrap h-full ">
-												<ProductCard
-													product={
-														product
-													}
-													onAdd={(e) =>
-														handleAdd(
-															product,
+									{apiProducts
+										.slice(4, 8)
+										.map((product) => (
+											<SwiperSlide
+												key={product.id}
+											>
+												<div className=" ul-product-card-wrap h-full ">
+													<ProductCard
+														product={
+															product
+														}
+														onAdd={(
 															e
-														)
-													}
-												/>
-												<button
-													className="ul-addtocart-quick"
-													onClick={(e) =>
-														handleAdd(
-															product,
+														) =>
+															handleAdd(
+																product,
+																e
+															)
+														}
+													/>
+													<button
+														className="ul-addtocart-quick"
+														onClick={(
 															e
-														)
-													}
-													aria-label="Add to Cart"
-													title="Add to Cart"
-												>
-													<i className="flaticon-shopping-bag"></i>
-												</button>
-											</div>
-										</SwiperSlide>
-									))}
+														) =>
+															handleAdd(
+																product,
+																e
+															)
+														}
+														aria-label="Add to Cart"
+														title="Add to Cart"
+													>
+														<i className="flaticon-shopping-bag"></i>
+													</button>
+												</div>
+											</SwiperSlide>
+										))}
 								</Swiper>
 
 								<div className="ul-products-slider-nav ul-products-slider-1-nav">

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { products } from "../../../data/Data";
+import { fetchProducts } from "../../../api/productService";
+// import { products } from "../../../data/Data";
 
 // export const products2 = [
 //   {
@@ -119,6 +120,17 @@ import { products } from "../../../data/Data";
 // ];
 
 const MostSellingSection = () => {
+	const [products, setProducts] = useState([]);
+
+	// ⭐ Fetch products
+	useEffect(() => {
+		fetchProducts()
+			.then((res) => {
+				console.log("API PRODUCTS:", res.data);
+				setProducts(res.data);
+			})
+			.catch((err) => console.error("API ERROR:", err));
+	}, []);
 	const [activeFilter, setActiveFilter] = useState("all");
 	const navigate = useNavigate();
 

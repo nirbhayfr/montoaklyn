@@ -7,11 +7,23 @@ import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { products } from "../../../data/Data";
+// import { products } from "../../../data/Data";
 
 import { AddToCartModal } from "../../../pages/ShopPage";
+import { fetchProducts } from "../../../api/productService";
 
 const FlashSaleSection = () => {
+	const [apiProducts, setApiProducts] = useState([]);
+
+	// ⭐ Fetch products
+	useEffect(() => {
+		fetchProducts()
+			.then((res) => {
+				console.log("API PRODUCTS:", res.data);
+				setApiProducts(res.data);
+			})
+			.catch((err) => console.error("API ERROR:", err));
+	}, []);
 	const dispatch = useDispatch();
 	const prevRef = useRef(null);
 	const nextRef = useRef(null);
@@ -120,7 +132,7 @@ const FlashSaleSection = () => {
 								nextEl: nextRef.current,
 							}}
 						>
-							{products.map((product) => (
+							{apiProducts.slice(0, 4).map((product) => (
 								<SwiperSlide key={product.id}>
 									<div className="ul-product-card-wrap">
 										<ProductCard
