@@ -3,6 +3,8 @@ import "./App.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // make sure Header has: export default Header
 // import Footer from "./common/Footer";
@@ -13,6 +15,12 @@ import NotFoundPage from "./pages/NotFoundPage";
 import ContactUs from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import Sell from "./pages/Sell";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminCategory from "./pages/admin/AdminCategory";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCreateProduct from "./pages/admin/AdminCreateProduct";
+import EditProduct from "./pages/admin/EditProduct";
 
 // 👉 Named exports:
 import { CartPage } from "./pages/CartPage";
@@ -61,32 +69,44 @@ const App = () => {
         <Route path="/search" element={<SearchResults />} />
 
         <Route path="/*" element={<NotFoundPage />} />
+        {/* ADMIN LAYOUT WRAPPER */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="home" element={<AdminHome />} />
+          <Route path="category" element={<AdminCategory />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="products/create" element={<AdminCreateProduct />} />
+          <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+        </Route>
       </Routes>
 
       {/* for suggestion we need to hit ctrl + space */}
       {/* WhatsApp bubble (always on top of pages) */}
-      <FloatingWhatsApp
-        phone="+918791676705" // <-- put your number
-        message="Hi! I want to order..."
-        position="right" // "left" or "right"
-        offsetX={10}
-        offsetY={65}
-        showLabel={false} // set true to show small label
-        zIndex={9999} // above everything
-      />
-
-      {/* Sticky “Order Now — COD” bar (bottom center) */}
-      <StickyOrderBar
-        href="/cart" // or "/checkout"
-        ctaText="Order Now – Cash on Delivery"
-        subText="15 days money back guarantee"
-        bg="linear-gradient(90deg, var(--ul-primary) 0%, var(--ul-secondary) 100%)"
-        textColor="#ffffff"
-        zIndex={9998} // slightly below WhatsApp
-        showOnScroll={false} // set false to always visible
-        minScrollPx={120}
-        stickyOnMobileOnly={false}
-      />
+      {/* Hide WhatsApp + Sticky bar on admin pages */}
+      {!window.location.pathname.startsWith("/admin") && (
+        <>
+          <FloatingWhatsApp
+            phone="+918791676705"
+            message="Hi! I want to order..."
+            position="right"
+            offsetX={10}
+            offsetY={65}
+            showLabel={false}
+            zIndex={9999}
+          />
+          <StickyOrderBar
+            href="/cart"
+            ctaText="Order Now – Cash on Delivery"
+            subText="15 days money back guarantee"
+            bg="linear-gradient(90deg, var(--ul-primary) 0%, var(--ul-secondary) 100%)"
+            textColor="#ffffff"
+            zIndex={9998}
+            showOnScroll={false}
+            minScrollPx={120}
+            stickyOnMobileOnly={false}
+          />
+        </>
+      )}
+      <ToastContainer />
     </Router>
   );
 };

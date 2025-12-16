@@ -1,11 +1,12 @@
 import React from "react";
 import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
+import { loginUser } from "../api/auth";
 
 export const Login = () => {
   // handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // prevent ?email=... reload
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const email = e.target.email.value.trim();
     const password = e.target.password.value.trim();
@@ -15,11 +16,36 @@ export const Login = () => {
       return;
     }
 
-    const user = { email, password };
-    localStorage.setItem("user", JSON.stringify(user));
+    try {
+      const data = { email, password };
+      const res = await loginUser(data);
 
-    alert("✅ User saved in localStorage!");
-    e.target.reset(); // optional: clear form after submit
+      console.log("API Response:", res); // ⭐ now you will see console logs
+
+      // Backend uses statusCode like 200, 400, 404
+      if (res.statusCode === 200) {
+        const userData = {
+          id: res.data._id,
+          name: res.data.name,
+          email: res.data.email,
+          isLoggedIn: true,
+        };
+
+        localStorage.setItem("user", JSON.stringify(userData));
+
+        alert("🎉 Login Successful!");
+        window.location.href = "/";
+      } else if (res.statusCode === 404) {
+        alert("❌ User not found. Please register first.");
+      } else if (res.statusCode === 400) {
+        alert("❌ Invalid credentials. Please try again.");
+      } else {
+        alert("⚠️ Something went wrong! Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("❌ Server is down or unreachable.");
+    }
   };
 
   return (

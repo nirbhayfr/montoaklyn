@@ -1,8 +1,55 @@
 import React from "react";
 import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
+import { registerUser } from "../api/auth";
 
 export const Register = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const firstname = e.target.firstname.value.trim();
+    const lastname = e.target.lastname.value.trim();
+    const phone = e.target["phone-number"].value.trim();
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
+    const confirmPassword = e.target["confirm-password"].value.trim();
+
+    // ⭐ BASIC VALIDATION
+    if (!firstname || !email || !password) {
+      alert("⚠️ First name, Email & Password are required.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("❌ Passwords do not match!");
+      return;
+    }
+
+    // ⭐ BACKEND EXPECTS: name, email, password
+    const payload = {
+      name: firstname + " " + lastname,
+      email,
+      password,
+    };
+
+    try {
+      const res = await registerUser(payload);
+      console.log("Register Response:", res);
+
+      if (res.statusCode === 201) {
+        alert("🎉 Account created successfully!");
+        window.location.href = "/login";
+      } else if (res.statusCode === 400) {
+        alert("❌ User already exists.");
+      } else {
+        alert("⚠️ Something went wrong. Try again.");
+      }
+    } catch (err) {
+      console.error("Register error:", err);
+      alert("❌ Server error. Please try again later.");
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -32,9 +79,10 @@ export const Register = () => {
               </div>
 
               <div className="col-xl-4 col-md-7">
-                <form action="#" className="ul-contact-form">
+                {/* ⭐ ADDED onSubmit */}
+                <form onSubmit={handleSubmit} className="ul-contact-form">
                   <div className="row">
-                    {/*  firstname    */}
+                    {/* Firstname */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -46,7 +94,7 @@ export const Register = () => {
                       </div>
                     </div>
 
-                    {/*  lastname    */}
+                    {/* Lastname */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -58,7 +106,7 @@ export const Register = () => {
                       </div>
                     </div>
 
-                    {/*  phone    */}
+                    {/* Phone */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -70,7 +118,7 @@ export const Register = () => {
                       </div>
                     </div>
 
-                    {/*  email    */}
+                    {/* Email */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -85,7 +133,7 @@ export const Register = () => {
                       </div>
                     </div>
 
-                    {/*  password    */}
+                    {/* Password */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -99,8 +147,8 @@ export const Register = () => {
                         </span>
                       </div>
                     </div>
-                    {/*  */}
-                    {/*  CONFIRM PASSWORD    */}
+
+                    {/* Confirm Password */}
                     <div className="form-group">
                       <div className="position-relative">
                         <input
@@ -115,7 +163,8 @@ export const Register = () => {
                       </div>
                     </div>
                   </div>
-                  {/*  submit btn    */}
+
+                  {/* Submit button */}
                   <button type="submit">Sign Up</button>
                 </form>
 
