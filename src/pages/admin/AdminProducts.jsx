@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ConfirmModal from "../../components/ConfirmModal";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 import { api } from "../../api/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";

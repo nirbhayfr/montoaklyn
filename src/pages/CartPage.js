@@ -1,476 +1,294 @@
-// src/pages/CartPage.jsx
-import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Header } from "../components/index/Header";
-import {
-	updateQuantity,
-	removeItem,
-	getCartTotal,
-	resetCart,
-} from "../redux/cartSlice";
-import { useNavigate } from "react-router-dom";
 import Footer from "../components/index/Footer";
+import { Header } from "../components/index/Header";
+import { ArrowLeft, BadgePercent, ChevronRight, Trash2 } from "lucide-react";
+import {
+	decreaseQuantity,
+	increaseQuantity,
+	removeItem,
+} from "../redux/cartSlice";
+import { products } from "../data/newData";
+import NewProductCard from "../components/ui/ProductCard";
+import { Link } from "react-router-dom";
 
-/* ------- helpers ------- */
-const parsePrice = (p) => {
-	const n = Number(String(p).replace(/[^0-9.]/g, ""));
-	return Number.isFinite(n) ? n : 0;
-};
-const pctFromDiscount = (discount) => {
-	const m = String(discount || "").match(/(\d+)\s*%/);
-	return m ? Number(m[1]) : 0;
-};
-
-export const CartPage = () => {
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
+function CartPage() {
 	const cart = useSelector((state) => state.cart.data);
-	console.log(cart);
 
-	// local derived totals
-	const { subtotal, totalMRP, totalSavings } = useMemo(() => {
-		let subtotalAcc = 0;
-		let mrpAcc = 0;
+	const subTotal = cart.reduce(
+		(sum, item) => sum + item.price * item.quantity,
+		0
+	);
 
-		for (const item of cart) {
-			const unit = parsePrice(item.price);
-			const qty = Number(item.quantity) || 1;
-			const pct = pctFromDiscount(item.discount);
-			const mrpUnit = pct ? unit / (1 - pct / 100) : unit;
-
-			subtotalAcc += unit * qty;
-			mrpAcc += mrpUnit * qty;
-		}
-		const save = Math.max(0, Math.round(mrpAcc - subtotalAcc));
-		return {
-			subtotal: Math.round(subtotalAcc),
-			totalMRP: Math.round(mrpAcc),
-			totalSavings: save,
-		};
-	}, [cart]);
-
-	const shipping = cart.length > 0 ? 0 : 0; // flat demo shipping
-	const grandTotal = subtotal + shipping;
-
-	// keep original getCartTotal behavior if you rely on it elsewhere
-	useEffect(() => {
-		dispatch(getCartTotal());
-	}, [cart, dispatch]);
-
-	/* ------- handlers ------- */
-	const handleIncrease = (id) => {
-		const product = cart.find((i) => i.id === id);
-		if (product) {
-			dispatch(
-				updateQuantity({
-					id,
-					quantity: Number(product.quantity) + 1,
-				})
-			);
-		}
-	};
-
-	const handleDecrease = (id) => {
-		const product = cart.find((i) => i.id === id);
-		if (product && product.quantity > 1) {
-			dispatch(
-				updateQuantity({
-					id,
-					quantity: Number(product.quantity) - 1,
-				})
-			);
-		}
-	};
-
-	const handleRemove = (id) => dispatch(removeItem({ id }));
-	const handleResetCart = () => dispatch(resetCart());
+	const totalMrp = cart.reduce(
+		(sum, item) => sum + item.mrp * item.quantity,
+		0
+	);
+	const extraOff = Math.round(subTotal * 0.1);
+	const discount = totalMrp - subTotal;
 
 	return (
-		<div>
+		<>
 			<Header />
 
-			<main>
-				{/* ===== HERO (breadcrumb) ===== */}
-				<div className="ul-container">
-					<div className="cart-hero">
-						<h2
-							className="ul-breadcrumb-title"
-							style={{ margin: 0 }}
-						>
-							My Cart
-						</h2>
-						<div
-							className="ul-breadcrumb-nav"
-							style={{ marginTop: 6 }}
-						>
-							<a href="/">
-								<i className="flaticon-home" /> Home
-							</a>
-							<i
-								className="flaticon-arrow-point-to-right"
-								aria-hidden="true"
-							/>
-							<span
-								className="current-page"
-								aria-current="page"
-							>
-								Cart
-							</span>
-						</div>
+			{/* Cart Header */}
+			<div className="px-4 py-4 flex items-center gap-3 border-b -mt-14">
+				<button>
+					<ArrowLeft size={20} />
+				</button>
+
+				<h1 className="font-medium text-lg">
+					My Bag ({cart.length} items)
+				</h1>
+			</div>
+
+			{/* Best Price Box */}
+			<div className="relative border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-4 mt-6">
+				{/* Tag */}
+				<div
+					className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold text-white rounded-md uppercase"
+					style={{
+						background:
+							"linear-gradient(90deg, #EF2853, #FFA31A)",
+					}}
+				>
+					Best Price
+				</div>
+
+				{/* Left Content */}
+				<div className="flex gap-3">
+					<div className="mt-1 text-[#EF2853]">
+						<BadgePercent size={22} />
+					</div>
+
+					<div>
+						<p className="font-medium">
+							Get at ₹{subTotal - extraOff}
+						</p>
+						<p className="text-xs text-gray-500">
+							10% off on order above ₹{subTotal} <br />
+							T&amp;C applied
+						</p>
 					</div>
 				</div>
 
-				{/* ===== Savings banner ===== */}
-				{/* {totalSavings > 0 && (
-          <div className="ul-container">
-            <div className="cart-save-banner">
-              <span className="dot" />
-              You’ll save <span style={{ width: 4 }} />
-              ₹{totalSavings.toLocaleString()}
-              <span style={{ width: 4 }} /> on this order!
-            </div>
-          </div>
-        )} */}
+				{/* Right Button */}
+				<button className="px-2 py-1 border border-green-600 text-green-700 bg-green-50 rounded-md text-sm font-medium whitespace-nowrap">
+					Extra ₹{extraOff} OFF
+				</button>
+			</div>
 
-				{/* ===== List + totals area ===== */}
-				<div className="ul-container" style={{ marginBottom: 96 }}>
-					{/* left: product list */}
-					<div className="cart-list">
-						{cart.length === 0 && (
-							<div
-								className="cart-card"
-								style={{ textAlign: "center" }}
-							>
-								Your cart is empty
-							</div>
-						)}
+			<div className="flex flex-col gap-3">
+				{cart.map((product) => (
+					<CartItem key={product.id} product={product} />
+				))}
+			</div>
 
-						{cart.map((item) => (
-							<CartItem
-								key={item.id}
-								item={item}
-								onIncrease={() =>
-									handleIncrease(item.id)
-								}
-								onDecrease={() =>
-									handleDecrease(item.id)
-								}
-								onRemove={() => handleRemove(item.id)}
-							/>
-						))}
+			<div className="border border-gray-200 rounded-md p-4">
+				<h3 className="text-sm font-semibold mb-3">
+					Order Summary ({cart.length} items)
+				</h3>
 
-						{/* reset button (kept from your functionality) */}
-						{cart.length > 0 && (
-							<div
-								style={{
-									marginTop: 10,
-									display: "flex",
-									gap: 10,
-								}}
-							>
-								<button
-									className="ul-cart-update-cart-btn"
-									onClick={handleResetCart}
-								>
-									Reset Cart
-								</button>
-							</div>
-						)}
+				<div className="flex justify-between text-sm mb-2">
+					<span>Total MRP</span>
+					<span>₹{totalMrp}</span>
+				</div>
+
+				<div className="flex justify-between text-sm mb-2 ">
+					<span>Discount</span>
+					<span className="text-green-600">- ₹{discount}</span>
+				</div>
+
+				<div className="flex justify-between text-sm mb-2">
+					<span>Delivery Charge</span>
+					<span className="text-green-600">FREE</span>
+				</div>
+
+				<hr className="my-3" />
+
+				<div className="flex justify-between font-semibold">
+					<span>Total Amount</span>
+					<span>₹{subTotal}</span>
+				</div>
+			</div>
+
+			<div className="text-black rounded-md px-6 py-4 ">
+				<div className="bg-gray-200 rounded-md px-6 py-2 flex items-center justify-center gap-2">
+					<BadgePercent />
+					<span className="font-medium text-xs">
+						Yay !! Your total discount is ₹{discount}
+					</span>
+				</div>
+			</div>
+
+			{/* Coupon Card */}
+			<div className="p-4">
+				<div className="border border-gray-800 rounded-md px-3 py-2 text-sm">
+					{/* Top row */}
+					<div className="flex justify-between items-start pr-2">
+						<div>
+							<p className="font-semibold">
+								Extra 15% OFF
+							</p>
+							<p className="text-gray-600 mt-3 text-xs">
+								15% off upto ₹150 on minimum purchase of
+								₹300
+							</p>
+						</div>
+
+						<button className="border border-black text-black px-3 py-1 rounded text-xs font-medium hover:bg-black hover:text-white transition">
+							APPLY
+						</button>
 					</div>
 
-					{/* totals card (small, like right panel) */}
-					{cart.length > 0 && (
-						<div
-							className="cart-card"
-							style={{
-								marginTop: 12,
-								borderStyle: "dashed",
-							}}
-						>
-							<h3
-								className="ul-cart-expense-overview-title"
-								style={{ marginBottom: 10 }}
-							>
-								Price Details
-							</h3>
-
-							<div className="middle">
-								<div
-									className="single-row"
-									style={{
-										display: "flex",
-										justifyContent:
-											"space-between",
-									}}
-								>
-									<span className="inner-title">
-										MRP (incl. taxes)
-									</span>
-									<span className="number">
-										₹{totalMRP.toLocaleString()}
-									</span>
-								</div>
-
-								<div
-									className="single-row"
-									style={{
-										display: "flex",
-										justifyContent:
-											"space-between",
-									}}
-								>
-									<span className="inner-title">
-										Savings
-									</span>
-									<span
-										className="number"
-										style={{
-											color: "#16a34a",
-											fontWeight: 700,
-										}}
-									>
-										− ₹
-										{totalSavings.toLocaleString()}
-									</span>
-								</div>
-
-								<div
-									className="single-row"
-									style={{
-										display: "flex",
-										justifyContent:
-											"space-between",
-									}}
-								>
-									<span className="inner-title">
-										Subtotal
-									</span>
-									<span className="number">
-										₹{subtotal.toLocaleString()}
-									</span>
-								</div>
-
-								<div
-									className="single-row"
-									style={{
-										display: "flex",
-										justifyContent:
-											"space-between",
-									}}
-								>
-									<span className="inner-title">
-										Shipping
-									</span>
-									<span className="number">
-										{shipping === 0
-											? "Free"
-											: `₹${shipping.toLocaleString()}`}
-									</span>
-								</div>
-							</div>
-
-							<div
-								className="bottom"
-								style={{
-									borderTop: "1px dashed #e5e7eb",
-									marginTop: 10,
-									paddingTop: 10,
-									display: "flex",
-									justifyContent: "space-between",
-									alignItems: "center",
-								}}
-							>
-								<span
-									className="inner-title"
-									style={{ fontWeight: 800 }}
-								>
-									Total Payable
-								</span>
-								<span
-									className="number"
-									style={{ fontWeight: 800 }}
-								>
-									₹{grandTotal.toLocaleString()}
-								</span>
-							</div>
-							<div>
-								<button
-									onClick={() =>
-										navigate("/checkout")
-									}
-									style={{
-										display: "block",
-										width: "100%",
-										background:
-											"linear-gradient(90deg, #ff5a5f, #ff8a00)",
-										color: "white",
-										fontWeight: "700",
-										fontSize: "16px",
-										border: "none",
-										borderRadius: "8px",
-										padding: "14px 0",
-										cursor: "pointer",
-
-										transition: "0.3s ease",
-										paddingBottom: "20px",
-										marginBottom: "40px",
-										marginTop: "25px",
-									}}
-									onMouseEnter={(e) =>
-										(e.currentTarget.style.background =
-											"linear-gradient(90deg, #ff8a00, #ff5a5f)")
-									}
-									onMouseLeave={(e) =>
-										(e.currentTarget.style.background =
-											"linear-gradient(90deg, #ff5a5f, #ff8a00)")
-									}
-								>
-									Proceed to Checkout
-								</button>
-							</div>
-						</div>
-					)}
+					{/* Bottom strip */}
+					<div className="mt-4 bg-gray-100 px-3 py-2 text-xs flex items-center cursor-pointer justify-center">
+						<span>
+							View / Apply more coupons and gift cards
+						</span>
+						<ChevronRight className="size-3" />
+					</div>
 				</div>
-			</main>
+			</div>
+
+			{/* Recently Viewed */}
+			<div className="mb-4">
+				<h3 className="font-medium font-bodoni text-xl text-center mb-4">
+					Recently Viewed
+				</h3>
+
+				<div className="flex gap-4 overflow-x-auto no-scrollbar">
+					<div />
+
+					{products.slice(0, 8).map((item) => (
+						<div key={item.id} className="min-w-[160px]">
+							<NewProductCard product={item} />
+						</div>
+					))}
+
+					<div />
+				</div>
+			</div>
+
+			<div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-2 flex items-center justify-between">
+				{/* Amount */}
+				<div>
+					<p className="text-base font-semibold">₹{subTotal}</p>
+					<p className="text-xs text-gray-500">
+						Total Payable Amount
+					</p>
+				</div>
+
+				{/* CTA */}
+				{subTotal !== 0 && (
+					<Link
+						to="/checkout"
+						className="bg-black text-white px-6 py-2 text-sm font-medium"
+					>
+						Proceed to Buy
+					</Link>
+				)}
+			</div>
 
 			<Footer />
+		</>
+	);
+}
+
+export default CartPage;
+
+const CartItem = ({ product }) => {
+	const dispatch = useDispatch();
+
+	return (
+		<div className="relative flex gap-4 border border-gray-200 rounded-md p-3">
+			{/* Image */}
+			<div className="relative w-24 h-32 flex-shrink-0">
+				<img
+					src={product.image}
+					alt={product.name}
+					className="w-full h-full object-cover rounded object-top"
+				/>
+
+				{/* Rating */}
+				<span className="absolute bottom-1 left-1 bg-black text-white text-xs px-1.5 py-0.5 rounded">
+					{product.rating} ★
+				</span>
+			</div>
+
+			{/* Details */}
+			<div className="flex-1">
+				<h3 className="text-sm font-medium leading-snug">
+					{product.name}
+				</h3>
+
+				<div className="flex items-center gap-2 mt-1">
+					<span className="text-sm font-semibold">
+						₹{product.price}
+					</span>
+					<span className="text-xs text-gray-400 line-through">
+						₹{product.mrp}
+					</span>
+					<span className="text-xs font-medium text-green-600">
+						{Math.round(
+							((product.mrp - product.price) /
+								product.mrp) *
+								100
+						)}
+						% OFF
+					</span>
+				</div>
+
+				{/* Quantity + Size */}
+				<div className="flex gap-3 mt-8">
+					<div className="flex items-center border border-gray-300 rounded text-xs">
+						<button
+							className="px-2 py-1 border-r border-gray-300"
+							onClick={() =>
+								dispatch(
+									decreaseQuantity({
+										id: product.id,
+									})
+								)
+							}
+						>
+							−
+						</button>
+
+						<span className="px-3 py-1 select-none">
+							{product.quantity}
+						</span>
+
+						<button
+							className="px-2 py-1 border-l border-gray-300"
+							onClick={() =>
+								dispatch(
+									increaseQuantity({
+										id: product.id,
+									})
+								)
+							}
+						>
+							+
+						</button>
+					</div>
+
+					<select className="border border-gray-300 rounded px-2 py-1 text-xs">
+						{["S", "M", "L", "XL"].map((s) => (
+							<option key={s} value={s}>
+								{s}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+
+			{/* Delete */}
+			<button
+				className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-sm"
+				onClick={() => dispatch(removeItem({ id: product.id }))}
+			>
+				<Trash2 className="size-5" />
+			</button>
 		</div>
 	);
 };
-
-/* =========================================================
-   Compact Flipkart-style Cart Item card (UI only)
-   ========================================================= */
-const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
-	const { title, images, price, quantity, size, color, discount, onSale } =
-		item;
-
-	const unit = parsePrice(price);
-	const qty = Number(quantity) || 1;
-	const pct = pctFromDiscount(discount);
-	const mrpUnit = pct ? unit / (1 - pct / 100) : unit;
-
-	// const imgSrc = "/" + String(images[0] || "").replace(/^\/+/, "");
-
-	// ETA text
-	const eta = new Date();
-	eta.setDate(eta.getDate() + 7);
-	const etaStr = eta.toLocaleDateString("en-IN", {
-		weekday: "short",
-		day: "numeric",
-		month: "short",
-	});
-
-	return (
-		<article className="cart-card">
-			{/* <div className="cart-card-head">
-        {onSale && <span className="badge-deal">SUPER DEALS</span>}
-      </div> */}
-			{/* {images[0]} */}
-			<div className="cart-row">
-				{/* image */}
-				<a href="/shopdetails" aria-label={title}>
-					<img
-						className="cart-img"
-						src={images[0] || "/products/placeholder.png"} // fallback image
-						alt={title || "Product image"}
-					/>
-				</a>
-
-				{/* details */}
-				<div>
-					<a href="/shopdetails" className="cart-title">
-						{title}
-					</a>
-
-					<div className="cart-meta">
-						{size && (
-							<>
-								Size: <b>{size}</b>
-							</>
-						)}
-						{size && color ? " • " : ""}
-						{color && (
-							<>
-								Color:{" "}
-								<b
-									style={{
-										textTransform: "capitalize",
-									}}
-								>
-									{color}
-								</b>
-							</>
-						)}
-					</div>
-
-					<div className="qty-line">
-						<span
-							className="cart-meta"
-							style={{ marginRight: 4 }}
-						>
-							Qty:
-						</span>
-						<div className="qty-pill">
-							<button
-								type="button"
-								onClick={onDecrease}
-								aria-label="Decrease"
-							>
-								−
-							</button>
-							<input readOnly value={qty} />
-							<button
-								type="button"
-								onClick={onIncrease}
-								aria-label="Increase"
-							>
-								+
-							</button>
-						</div>
-					</div>
-
-					<div className="cart-meta">
-						Delivery by <b>{etaStr}</b>
-					</div>
-				</div>
-
-				{/* right prices */}
-				<div className="price-box">
-					{pct > 0 && <span className="disc-chip">-{pct}%</span>}
-					<div>
-						<span className="price-now">
-							₹{Math.round(unit).toLocaleString()}
-						</span>
-						{pct > 0 && (
-							<span className="price-mrp">
-								₹{Math.round(mrpUnit).toLocaleString()}
-							</span>
-						)}
-					</div>
-					<div className="subtotal">
-						Subtotal:{" "}
-						<b>₹{Math.round(unit * qty).toLocaleString()}</b>
-					</div>
-				</div>
-			</div>
-
-			{/* actions row (functionality unchanged) */}
-			<div className="card-actions">
-				<button title="Save for later">
-					<i className="flaticon-bookmark" /> Save for later
-				</button>
-				<button onClick={onRemove}>
-					<i className="flaticon-close" /> Remove
-				</button>
-				<button
-					onClick={() => (window.location.href = "/checkout")}
-				>
-					<i className="flaticon-bolt" /> Buy this now
-				</button>
-			</div>
-		</article>
-	);
-};
-
-export default CartPage;

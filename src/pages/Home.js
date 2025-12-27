@@ -1,21 +1,27 @@
-import React from "react";
-import Banner from "../components/Banner";
-import Category from "../components/Category";
-import FlashSale from "../components/FlashSale";
-import Offer from "../components/Offer";
-import BestSeller from "../components/products";
-import Arrived from "../components/Arrived";
-import LoginPage from "./LoginPage";
+import Exclusive from "../components/home/Exclusive";
+import ImageSlider from "../components/home/ImageSlider";
+import TexturedImageGrid from "../components/home/Newcollection";
+import NewsLetterAndBlogs from "../components/home/NewsLetterAndBlogs";
+import CustomerReviews from "../components/home/Reviews";
+import Timer from "../components/home/Timer";
+import TrendingNow from "../components/home/TrendingNow";
+import Footer from "../components/index/Footer";
+import { Header } from "../components/index/Header";
 
-const Home = () => {
-  return (
-    <div>
-      
-      
-    </div>
-    
-  );
-  
-};
+function Home() {
+	return (
+		<>
+			<Header />
+			<ImageSlider />
+			<TexturedImageGrid />
+			<Exclusive />
+			<TrendingNow />
+			<Timer />
+			<CustomerReviews />
+			<NewsLetterAndBlogs />
+			<Footer />
+		</>
+	);
+}
 
 export default Home;

@@ -105,93 +105,113 @@ export const CheckoutPage = () => {
 	};
 
 	return (
-		<div>
+		<div className="bg-gray-50 min-h-screen">
 			<Header />
 
-			<main className="ul-container">
-				<h2 className="ul-breadcrumb-title">Checkout</h2>
+			<main className="ul-container py-2 -mt-6">
+				<h2 className="ul-breadcrumb-title text-2xl font-semibold mb-6">
+					Checkout
+				</h2>
 
-				{/* Billing form */}
-				<section className="ul-checkout-form">
-					<h3 className="ul-checkout-title">Billing Details</h3>
-					<div className="row row-cols-lg-2 row-cols-1 ul-bs-row">
-						{[
-							["First Name*", "firstName"],
-							["Last Name*", "lastName"],
-							["Street Address*", "address1"],
-							["Address 2", "address2"],
-							["City*", "city"],
-							["State*", "state"],
-							["Zip Code*", "zipcode"],
-							["Country*", "country"],
-							["Phone*", "phone"],
-						].map(([label, field]) => (
-							<div key={field} className="form-group">
-								<label>{label}</label>
-								<input
-									type="text"
-									value={billing[field]}
-									onChange={(e) =>
-										handleChange(
-											field,
-											e.target.value
-										)
-									}
-								/>
-							</div>
-						))}
-					</div>
-					<br />
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+					{/* Billing form */}
+					<section className="ul-checkout-form lg:col-span-2 bg-white border border-gray-200 rounded-md p-6">
+						<h3 className="ul-checkout-title text-lg font-semibold mb-4">
+							Billing Details
+						</h3>
 
-					<button
-						type="button"
-						onClick={handlePlaceOrder}
-						className="ul-checkout-form-btn"
-					>
-						Place Your Order
-					</button>
-
-					{/* Inline message */}
-					{message.text && (
-						<p
-							className={`mt-3 text-sm ${
-								message.type === "error"
-									? "text-red-500"
-									: "text-green-600 font-medium"
-							}`}
-						>
-							{message.text}
-						</p>
-					)}
-				</section>
-
-				{/* Order summary */}
-				<aside className="ul-checkout-bill-summary">
-					<h4>Your Order</h4>
-					{cart.map((item, i) => (
-						<div key={i} className="single-row">
-							<span>
-								{item.title} (x{item.quantity})
-							</span>
-							<span>{item.price}</span>
+						<div className="row row-cols-lg-2 row-cols-1 ul-bs-row gap-y-4">
+							{[
+								["First Name*", "firstName"],
+								["Last Name*", "lastName"],
+								["Street Address*", "address1"],
+								["Address 2", "address2"],
+								["City*", "city"],
+								["State*", "state"],
+								["Zip Code*", "zipcode"],
+								["Country*", "country"],
+								["Phone*", "phone"],
+							].map(([label, field]) => (
+								<div key={field} className="form-group">
+									<label className="text-sm font-medium mb-1 block">
+										{label}
+									</label>
+									<input
+										type="text"
+										value={billing[field]}
+										onChange={(e) =>
+											handleChange(
+												field,
+												e.target.value
+											)
+										}
+										className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+									/>
+								</div>
+							))}
 						</div>
-					))}
-					<div className="ul-checkout-bill-summary-footer ul-checkout-bill-summary-header">
-						<span className="left">Total</span>
-						<span className="right">
-							Rs{" "}
-							{cart
-								.reduce(
-									(acc, item) =>
-										acc +
-										parseFloat(item.price) *
-											item.quantity,
-									0
-								)
-								.toFixed(2)}
-						</span>
-					</div>
-				</aside>
+
+						<button
+							type="button"
+							onClick={handlePlaceOrder}
+							className="ul-checkout-form-btn mt-6 bg-black text-white px-6 py-3 rounded text-sm font-medium hover:bg-gray-900"
+						>
+							Place Your Order
+						</button>
+
+						{/* Inline message */}
+						{message.text && (
+							<p
+								className={`mt-3 text-sm ${
+									message.type === "error"
+										? "text-red-500"
+										: "text-green-600 font-medium"
+								}`}
+							>
+								{message.text}
+							</p>
+						)}
+					</section>
+
+					{/* Order summary */}
+					<aside className="ul-checkout-bill-summary bg-white border border-gray-200 rounded-md p-3 h-fit mb-3">
+						<h4 className="text-lg font-semibold mb-4">
+							Your Order
+						</h4>
+
+						<div className="space-y-2">
+							{cart.map((item, i) => (
+								<div
+									key={i}
+									className="flex justify-between text-sm text-gray-700"
+								>
+									<span>
+										{item.name} (x{item.quantity})
+									</span>
+									<span>₹{item.price}</span>
+								</div>
+							))}
+						</div>
+
+						<hr className="my-4" />
+
+						<div className="flex justify-between font-semibold text-base">
+							<span>Total</span>
+							<span>
+								₹
+								{cart
+									.reduce(
+										(acc, item) =>
+											acc +
+											parseFloat(item.price) *
+												item.quantity,
+										0
+									)
+									.toFixed(2)}
+							</span>
+						</div>
+					</aside>
+				</div>
 			</main>
 
 			<Footer />
