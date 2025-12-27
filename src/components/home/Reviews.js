@@ -40,7 +40,7 @@ export default function CustomerReviews() {
 
 			{/* Slider */}
 			<div className="overflow-x-auto no-scrollbar">
-				<div className="flex gap-8 w-max">
+				<div className="flex gap-8 w-max px-8">
 					{reviews.map((review, idx) => (
 						<div
 							key={idx}

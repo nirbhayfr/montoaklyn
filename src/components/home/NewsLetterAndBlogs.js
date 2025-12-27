@@ -49,18 +49,21 @@ export default function NewsLetterAndBlogs() {
 								</p>
 
 								{/* Input Group */}
-								<div className="flex bg-white rounded-md overflow-visible p-2">
+								<div className="relative bg-white rounded-md">
 									<input
 										type="email"
 										placeholder="Enter your email"
-										className="px-3 py-2 text-sm text-black outline-none bg-transparent"
+										className="w-full px-3 pr-20 py-2 text-sm text-black outline-none bg-transparent rounded-md"
 									/>
 
-									<div className="flex">
-										<button className="px-3 py-1 text-xs font-medium uppercase text-white rounded-md bg-[linear-gradient(90deg,#EF2853,#FFA31A)]">
-											Subscribe Now
-										</button>
-									</div>
+									<button
+										className="absolute right-2 top-1/2 -translate-y-1/2 
+	max-w-[3.5rem] px-2 py-1 text-[.4rem] font-medium uppercase text-white 
+	rounded-md bg-[linear-gradient(90deg,#EF2853,#FFA31A)]
+	whitespace-normal break-words text-center leading-tight"
+									>
+										Subscribe Now
+									</button>
 								</div>
 							</div>
 						</div>
