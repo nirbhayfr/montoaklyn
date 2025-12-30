@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { products } from "../data/newData";
+
 import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
 import {
@@ -18,6 +18,7 @@ import CustomerReviews from "../components/home/Reviews";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { toast } from "sonner";
+import { useProductById, useProducts } from "../hooks/useProducts";
 
 const productInfo = [
 	{
@@ -61,7 +62,10 @@ const productInfo = [
 
 function ShopDetailsPage() {
 	const params = useParams();
-	const product = products.find((p) => p.id === +params.id);
+	const products = useProducts();
+	const productById = useProductById(params.id);
+	const product = productById.product;
+
 	const [selectedSize, setSelectedSize] = useState(null);
 	const [pincode, setPincode] = useState("");
 	const [openIndex, setOpenIndex] = useState(null);
@@ -80,11 +84,12 @@ function ShopDetailsPage() {
 		);
 	}
 
+	console.log(product);
+
 	const discountPercent = Math.round(
-		((product.mrp - product.price) / product.mrp) * 100
+		((product.oldPrice - product.price) / product.oldPrice) * 100
 	);
 	const extraOff = Math.round(product.price * 0.1);
-	const sizes = ["S", "M", "L", "XL", "2XL"];
 
 	return (
 		<>
@@ -97,15 +102,15 @@ function ShopDetailsPage() {
 				</span>
 				<span className="mx-2">{">"}</span>
 				<span className="text-black font-medium">
-					{product.name}
+					{product.title}
 				</span>
 			</div>
 
 			{/* Product Image */}
 			<div className="relative w-full h-[420px] md:h-[520px] bg-gray-100">
 				<img
-					src={product.image}
-					alt={product.name}
+					src={product.images[0]}
+					alt={product.title}
 					className="w-full h-full object-cover object-top"
 				/>
 
@@ -123,7 +128,7 @@ function ShopDetailsPage() {
 			{/* Product Info */}
 			<div className="px-4 md:px-10 py-6">
 				<h1 className="text-lg font-medium uppercase mb-2">
-					{product.name}
+					{product.title}
 				</h1>
 
 				<div className="flex items-center gap-2 mb-1">
@@ -131,7 +136,7 @@ function ShopDetailsPage() {
 						₹{product.price}
 					</span>
 					<span className="text-gray-500 line-through text-xs">
-						₹{product.mrp}
+						₹{product.oldPrice}
 					</span>
 					<span className="text-green-600 font-medium">
 						({discountPercent}% OFF)
@@ -188,7 +193,7 @@ function ShopDetailsPage() {
 				</div>
 
 				<div className="flex gap-3">
-					{sizes.map((size) => (
+					{product.sizes.map((size) => (
 						<button
 							key={size}
 							onClick={() => setSelectedSize(size)}
@@ -417,6 +422,7 @@ function ShopDetailsPage() {
 							addToCart({
 								...product,
 								quantity: 1,
+								size: selectedSize,
 							})
 						);
 

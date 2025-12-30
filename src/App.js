@@ -23,6 +23,9 @@ import DetailsPage from "./pages/DetailsPage";
 import Home from "./pages/Home";
 import NewShopPage from "./pages/ShopPage";
 import CartPage from "./pages/CartPage";
+import Profile from "./pages/Profile";
+import ProtectedRoutes from "./ProtectedRoutes";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 const App = () => {
 	return (
@@ -30,31 +33,48 @@ const App = () => {
 			<Toaster position="bottom-right" />
 
 			<Routes>
-				<Route path="/" element={<Home />} />
-				<Route path="/cart" element={<CartPage />} />
-				<Route path="/shop" element={<NewShopPage />} />
-				<Route
-					path="/order-confirmed"
-					element={<OrderConfirmation />}
-				/>
 				<Route path="/login" element={<Login />} />
+				<Route path="/" element={<Home />} />
 				<Route path="/register" element={<Register />} />
-				<Route path="/checkout" element={<CheckoutPage />} />
+				<Route path="/shop" element={<NewShopPage />} />
 				<Route path="/details/:id" element={<DetailsPage />} />
 				<Route path="/*" element={<NotFoundPage />} />
 
-				<Route path="/admin" element={<AdminLayout />}>
-					<Route path="home" element={<AdminHome />} />
-					<Route path="category" element={<AdminCategory />} />
-					<Route path="products" element={<AdminProducts />} />
+				<Route
+					element={
+						<ProtectedRoutes roles={["CUSTOMER", "ADMIN"]} />
+					}
+				>
 					<Route
-						path="products/create"
-						element={<AdminCreateProduct />}
+						path="/order-confirmed"
+						element={<OrderConfirmation />}
 					/>
-					<Route
-						path="products/edit/:id"
-						element={<EditProduct />}
-					/>
+					<Route path="/cart" element={<CartPage />} />
+					<Route path="/profile" element={<Profile />} />
+					<Route path="/checkout" element={<CheckoutPage />} />
+				</Route>
+
+				<Route element={<ProtectedRoutes roles={["ADMIN"]} />}>
+					<Route path="/admin" element={<AdminLayout />}>
+						<Route path="home" element={<AdminHome />} />
+						<Route
+							path="category"
+							element={<AdminCategory />}
+						/>
+						<Route
+							path="products"
+							element={<AdminProducts />}
+						/>
+						<Route
+							path="products/create"
+							element={<AdminCreateProduct />}
+						/>
+						<Route
+							path="products/edit/:id"
+							element={<EditProduct />}
+						/>
+						<Route path="orders" element={<AdminOrders />} />
+					</Route>
 				</Route>
 			</Routes>
 		</BrowserRouter>

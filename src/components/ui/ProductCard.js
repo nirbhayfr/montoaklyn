@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 export default function NewProductCard({ product }) {
 	return (
 		<Link
-			to={`/details/${product.id}`}
+			to={`/details/${product._id}`}
 			className="bg-white overflow-hidden"
 		>
 			<div className="relative h-[230px]">
 				<img
-					src={product.image}
-					alt={product.name}
+					src={product.images[0]}
+					alt={product.title}
 					className="w-full h-[100%] object-cover object-top"
 				/>
 
@@ -26,7 +26,7 @@ export default function NewProductCard({ product }) {
 
 			<div className="py-2">
 				<h4 className="text-xs  mb-1 text-left font-semibold">
-					{product.name}
+					{product.title}
 				</h4>
 
 				<div className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export default function NewProductCard({ product }) {
 						₹{product.price}
 					</span>
 					<span className="text-xs text-gray-400 line-through">
-						₹{product.mrp}
+						₹{product.oldPrice}
 					</span>
 				</div>
 			</div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Timer() {
 	// Example: 3 days, 8 hours
@@ -49,9 +50,12 @@ export default function Timer() {
 						</span>
 
 						<div className="mt-auto">
-							<button className="text-white underline underline-offset-4 tracking-wide">
+							<Link
+								to="/shop"
+								className="text-white underline underline-offset-4 tracking-wide"
+							>
 								Explore Now &rarr;
-							</button>
+							</Link>
 						</div>
 					</div>
 

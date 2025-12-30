@@ -7,12 +7,13 @@ import {
 	increaseQuantity,
 	removeItem,
 } from "../redux/cartSlice";
-import { products } from "../data/newData";
 import NewProductCard from "../components/ui/ProductCard";
 import { Link } from "react-router-dom";
+import { useProducts } from "../hooks/useProducts";
 
 function CartPage() {
 	const cart = useSelector((state) => state.cart.data);
+	const products = useProducts();
 
 	const subTotal = cart.reduce(
 		(sum, item) => sum + item.price * item.quantity,
@@ -20,7 +21,7 @@ function CartPage() {
 	);
 
 	const totalMrp = cart.reduce(
-		(sum, item) => sum + item.mrp * item.quantity,
+		(sum, item) => sum + item.oldPrice * item.quantity,
 		0
 	);
 	const extraOff = Math.round(subTotal * 0.1);
@@ -204,21 +205,21 @@ const CartItem = ({ product }) => {
 			{/* Image */}
 			<div className="relative w-24 h-32 flex-shrink-0">
 				<img
-					src={product.image}
-					alt={product.name}
+					src={product.images[0]}
+					alt={product.title}
 					className="w-full h-full object-cover rounded object-top"
 				/>
 
 				{/* Rating */}
 				<span className="absolute bottom-1 left-1 bg-black text-white text-xs px-1.5 py-0.5 rounded">
-					{product.rating} ★
+					4.5 ★
 				</span>
 			</div>
 
 			{/* Details */}
 			<div className="flex-1">
 				<h3 className="text-sm font-medium leading-snug">
-					{product.name}
+					{product.title}
 				</h3>
 
 				<div className="flex items-center gap-2 mt-1">
@@ -226,12 +227,12 @@ const CartItem = ({ product }) => {
 						₹{product.price}
 					</span>
 					<span className="text-xs text-gray-400 line-through">
-						₹{product.mrp}
+						₹{product.oldPrice}
 					</span>
 					<span className="text-xs font-medium text-green-600">
 						{Math.round(
-							((product.mrp - product.price) /
-								product.mrp) *
+							((product.oldPrice - product.price) /
+								product.oldPrice) *
 								100
 						)}
 						% OFF
@@ -272,13 +273,9 @@ const CartItem = ({ product }) => {
 						</button>
 					</div>
 
-					<select className="border border-gray-300 rounded px-2 py-1 text-xs">
-						{["S", "M", "L", "XL"].map((s) => (
-							<option key={s} value={s}>
-								{s}
-							</option>
-						))}
-					</select>
+					<span className="text-xs font-medium border border-gray-300 rounded px-2 py-1">
+						{product.size}
+					</span>
 				</div>
 			</div>
 

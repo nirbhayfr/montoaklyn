@@ -28,7 +28,7 @@ export default function Exclusive() {
 						<div className="absolute inset-0 flex items-end justify-center pb-10">
 							<Link
 								to="/shop"
-								className="text-white underline underline-offset-4 tracking-wide"
+								className="text-white underline underline-offset-4 tracking-wide z-50"
 							>
 								Shop the look
 							</Link>

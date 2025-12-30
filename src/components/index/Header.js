@@ -158,8 +158,9 @@ export const Header = () => {
 								<nav className="ul-header-nav">
 									<a href="/">Home</a>
 									<a href="/shop">Shop</a>
-									<a href="/shop">Men's</a>
-									<a href="/shop">Fabric's</a>
+									<a href="/profile">Profile</a>
+									{/* <a href="/shop">Men's</a>
+									<a href="/shop">Fabric's</a> */}
 								</nav>
 							</div>
 						</div>
@@ -169,7 +170,9 @@ export const Header = () => {
 							<button className="ul-header-mobile-search-opener d-xxl-none">
 								<i className="flaticon-search-interface-symbol"></i>
 							</button>
-							{/* <a href="/login"><i className="flaticon-user"></i></a> */}
+							<a href="/profile">
+								<i className="flaticon-user"></i>
+							</a>
 							{/* <a href="/wishlist">
 								<i className="flaticon-heart"></i>
 							</a> */}

@@ -8,13 +8,13 @@ export default function ShopCard({ product }) {
 	const dispatch = useDispatch();
 	return (
 		<Link
-			to={`/details/${product.id}`}
+			to={`/details/${product._id}`}
 			className="bg-white overflow-hidden"
 		>
 			<div className="relative h-[230px]">
 				<img
-					src={product.image}
-					alt={product.name}
+					src={product.images[0]}
+					alt={product.title}
 					className="w-full h-[100%] object-cover object-top"
 				/>
 
@@ -32,14 +32,14 @@ export default function ShopCard({ product }) {
 			{/* Details */}
 			<div className="py-2">
 				<h4 className="text-xs font-medium mb-1 text-left uppercase">
-					{product.name}
+					{product.title}
 				</h4>
 				<div className="flex items-center gap-2">
 					<span className="text-sm font-semibold">
 						₹{product.price}
 					</span>
 					<span className="text-xs text-gray-400 line-through">
-						₹{product.mrp}
+						₹{product.oldPrice}
 					</span>
 				</div>
 				<div className="flex justify-center mt-2">

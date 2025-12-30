@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 
 import NewProductCard from "../ui/ProductCard";
-import { products } from "../../data/newData";
+// import { products } from "../../data/newData";
+import { useProducts } from "../../hooks/useProducts";
 
 export default function TrendingNow() {
+	const products = useProducts();
 	return (
 		<section className="py-4 px-6">
 			<div className="max-w-6xl mx-auto">

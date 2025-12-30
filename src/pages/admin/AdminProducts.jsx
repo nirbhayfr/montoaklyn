@@ -123,7 +123,7 @@ export default function AdminProducts() {
 					<div className="product-card" key={p._id}>
 						<img
 							src={p.images?.[0] || "/cat/default.jpg"}
-							className="product-img"
+							className="product-img object-top"
 							alt={p.title}
 						/>
 

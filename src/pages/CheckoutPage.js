@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
+import { createOrder } from "../api/orders";
+import { decryptData } from "../crypto";
 
 export const CheckoutPage = () => {
 	const navigate = useNavigate();
-	const SCRIPT_URL =
-		"https://script.google.com/macros/s/AKfycbwb5APRylVF9qNBPNyfMT80KyL3WC6km1lvLErTE8-Oxb8vuvM1zQLby8ZdQYNH34Wy/exec";
+	// const SCRIPT_URL =
+	// 	"https://script.google.com/macros/s/AKfycbwb5APRylVF9qNBPNyfMT80KyL3WC6km1lvLErTE8-Oxb8vuvM1zQLby8ZdQYNH34Wy/exec";
 
 	const [billing, setBilling] = useState({
 		firstName: "",
@@ -44,7 +46,7 @@ export const CheckoutPage = () => {
 
 		if (emptyFields.length > 0) {
 			setMessage({
-				text: "⚠️ Please fill out all required fields before placing your order.",
+				text: "Please fill out all required fields.",
 				type: "error",
 			});
 			return;
@@ -52,53 +54,55 @@ export const CheckoutPage = () => {
 
 		if (!cart.length) {
 			setMessage({
-				text: "🛒 Your cart is empty.",
+				text: "Your cart is empty.",
 				type: "error",
 			});
 			return;
 		}
 
-		const total = cart.reduce(
-			(acc, item) => acc + parseFloat(item.price) * item.quantity,
-			0
-		);
+		const storedUser = localStorage.getItem("user");
+		if (!storedUser) {
+			navigate("/login");
+			return;
+		}
 
-		const orderData = {
-			order_id: Math.floor(Math.random() * 1000000),
-			customer_name: `${billing.firstName} ${billing.lastName}`,
-			email: billing.email,
-			phone: billing.phone,
-			address_line1: billing.address1,
-			address_line2: billing.address2,
-			city: billing.city,
-			state: billing.state,
-			zipcode: billing.zipcode,
-			country: billing.country,
-			cart,
-			total: total.toFixed(2),
+		const user = decryptData(storedUser);
+
+		const payload = {
+			customerId: user._id,
+			products: cart.map((item) => ({
+				product: item._id,
+				quantity: item.quantity,
+			})),
+			shippingAddress: {
+				fullName: `${billing.firstName} ${billing.lastName}`,
+				phone: billing.phone,
+				addressLine: billing.address1,
+				landmark: billing.address2 || "",
+				city: billing.city,
+				state: billing.state,
+				postalCode: billing.zipcode,
+			},
 		};
 
+		console.log(payload);
+
 		try {
-			await fetch(SCRIPT_URL, {
-				method: "POST",
-				mode: "no-cors",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(orderData),
-			});
+			await createOrder(payload);
 
 			setMessage({
-				text: "✅ Order placed successfully! Redirecting...",
+				text: "Order placed successfully!",
 				type: "success",
 			});
 
 			setTimeout(() => {
 				localStorage.removeItem("cart");
 				navigate("/order-confirmed");
-			}, 1500);
+			}, 1200);
 		} catch (err) {
-			console.error("Error:", err);
+			console.error(err);
 			setMessage({
-				text: "❌ Something went wrong. Please try again.",
+				text: err.response?.data?.message || "Order failed",
 				type: "error",
 			});
 		}
@@ -186,7 +190,8 @@ export const CheckoutPage = () => {
 									className="flex justify-between text-sm text-gray-700"
 								>
 									<span>
-										{item.name} (x{item.quantity})
+										{item.title} (x{item.quantity}
+										)
 									</span>
 									<span>₹{item.price}</span>
 								</div>
