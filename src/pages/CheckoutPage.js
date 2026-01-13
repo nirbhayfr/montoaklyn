@@ -4,6 +4,7 @@ import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
 import { createOrder } from "../api/orders";
 import { decryptData } from "../crypto";
+import { api } from "../api/api";
 
 export const CheckoutPage = () => {
 	const navigate = useNavigate();
@@ -26,6 +27,13 @@ export const CheckoutPage = () => {
 	const [message, setMessage] = useState({ text: "", type: "" });
 
 	const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+	const subTotal = cart
+		.reduce(
+			(acc, item) => acc + parseFloat(item.price) * item.quantity,
+			0
+		)
+		.toFixed(2);
 
 	const handleChange = (field, value) =>
 		setBilling((prev) => ({ ...prev, [field]: value }));
@@ -85,7 +93,15 @@ export const CheckoutPage = () => {
 			},
 		};
 
-		console.log(payload);
+		// try {
+		// 	const response = await api.post("/create-payment", {
+		// 		amount: subTotal * 100,
+		// 	});
+		// 	console.log(response.data.checkoutPageUrl);
+		// 	window.location.href = response.data.checkoutPageUrl;
+		// } catch (error) {
+		// 	console.error(error);
+		// }
 
 		try {
 			await createOrder(payload);
@@ -202,18 +218,7 @@ export const CheckoutPage = () => {
 
 						<div className="flex justify-between font-semibold text-base">
 							<span>Total</span>
-							<span>
-								₹
-								{cart
-									.reduce(
-										(acc, item) =>
-											acc +
-											parseFloat(item.price) *
-												item.quantity,
-										0
-									)
-									.toFixed(2)}
-							</span>
+							<span>₹{subTotal}</span>
 						</div>
 					</aside>
 				</div>
