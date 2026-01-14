@@ -31,7 +31,6 @@ export default function AdminCategory() {
 
 	// CREATE CATEGORY
 	const createCategory = async () => {
-		console.log(name, image);
 		await api.post("/category", { name, image });
 		setOpenModal(false);
 		setName("");

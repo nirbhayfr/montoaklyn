@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../api/api";
+import { Link } from "react-router-dom";
 
 export default function AdminHome() {
 	const [totalCategories, setTotalCategories] = useState(0);
@@ -50,6 +51,9 @@ export default function AdminHome() {
 				>
 					Manage Products
 				</button>
+				<Link to="/" className="dash-btn hover:text-white">
+					Visit Website Home
+				</Link>
 			</div>
 
 			{/* STAT CARDS */}

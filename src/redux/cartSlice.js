@@ -87,10 +87,14 @@ const cartSlice = createSlice({
 		},
 
 		removeItem(state, action) {
-			const tempCart = state.data.filter(
-				(product) => product.id !== action.payload.id
+			const itemIndex = state.data.findIndex(
+				(product) => product.id === action.payload.id
 			);
-			state.data = tempCart;
+
+			if (itemIndex !== -1) {
+				state.data.splice(itemIndex, 1);
+			}
+
 			storeInLocalStorage(state.data);
 		},
 

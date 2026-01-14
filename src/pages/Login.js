@@ -22,13 +22,15 @@ export const Login = () => {
 			const data = { email, password };
 			const res = await loginUser(data);
 
-			console.log("API Response:", res);
-
 			if (res.statusCode === 200) {
 				localStorage.setItem("user", encryptData(res.data));
 
 				toast.success("🎉 Login Successful!");
-				window.location.href = "/profile";
+				if (res.data.role === "ADMIN") {
+					window.location.href = "/admin";
+				} else {
+					window.location.href = "/profile";
+				}
 			} else if (res.statusCode === 404) {
 				toast.error("❌ User not found. Please register first.");
 			} else if (res.statusCode === 400) {

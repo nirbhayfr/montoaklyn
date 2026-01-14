@@ -121,11 +121,30 @@ export default function AdminProducts() {
 			<div className="product-grid">
 				{visibleProducts.map((p) => (
 					<div className="product-card" key={p._id}>
-						<img
-							src={p.images?.[0] || "/cat/default.jpg"}
-							className="product-img object-top"
-							alt={p.title}
-						/>
+						<div
+							className={
+								p.images?.length === 1
+									? "w-full"
+									: "grid grid-cols-2 gap-2"
+							}
+						>
+							{p.images?.length > 0 ? (
+								p.images.map((img, index) => (
+									<img
+										key={index}
+										src={img}
+										alt={`${p.title}-${index}`}
+										className="product-img object-top w-full"
+									/>
+								))
+							) : (
+								<img
+									src="/cat/default.jpg"
+									alt="default"
+									className="product-img object-top w-full"
+								/>
+							)}
+						</div>
 
 						<div className="product-body">
 							<div className="product-title">

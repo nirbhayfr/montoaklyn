@@ -9,10 +9,12 @@ export default function EditProduct() {
 	const navigate = useNavigate();
 	const { startUpload, isUploading } = useUploadThing("imageUploader", {
 		onClientUploadComplete: (res) => {
-			setImageUrl(res[0].url);
+			const urls = res.map((f) => f.url);
+			setImages((prev) => [...prev, ...urls]);
 		},
 	});
-	const [image, setImageUrl] = useState("");
+
+	const [images, setImages] = useState([]);
 
 	const [loading, setLoading] = useState(true);
 	const [categories, setCategories] = useState([]);
@@ -39,10 +41,10 @@ export default function EditProduct() {
 		try {
 			const res = await api.get(`/product/${id}`);
 			const p = res.data;
-			console.log(p);
+
 			setTitle(p.title || "");
 			setDescription(p.description || "");
-			setImageUrl(p.images[0]);
+			setImages(p.images || []);
 			setPrice(p.price ?? "");
 			setOldPrice(p.oldPrice ?? "");
 			setQuantity(p.quantity ?? 1);
@@ -74,11 +76,15 @@ export default function EditProduct() {
 			toast.error("Title, Price, and Category are required");
 			return;
 		}
+		if (images.length === 0) {
+			toast.error("At least one image is required");
+			return;
+		}
 
 		const payload = {
 			title: title.trim(),
 			description: description.trim(),
-			images: [image],
+			images,
 			price: Number(price),
 			oldPrice: oldPrice ? Number(oldPrice) : undefined,
 			quantity: Number(quantity),
@@ -145,10 +151,11 @@ export default function EditProduct() {
 					<input
 						type="file"
 						accept="image/*"
+						multiple
 						disabled={isUploading}
 						onChange={(e) => {
 							if (!e.target.files?.length) return;
-							startUpload([e.target.files[0]]);
+							startUpload(Array.from(e.target.files));
 						}}
 					/>
 
@@ -158,21 +165,35 @@ export default function EditProduct() {
 				</div>
 
 				{/* IMAGE PREVIEW */}
-				{image && (
-					<div style={{ margin: "10px 0" }}>
-						<img
-							src={image}
-							alt="preview"
-							style={{
-								width: "120px",
-								height: "120px",
-								borderRadius: "10px",
-								objectFit: "cover",
-								boxShadow: "0 0 6px rgba(0,0,0,0.2)",
-							}}
-						/>
-					</div>
-				)}
+				<div className="flex gap-2 flex-wrap mt-3">
+					{images.map((img, index) => (
+						<div
+							key={index}
+							className="relative w-16 h-16 border border-gray-300 rounded overflow-hidden flex items-center justify-center"
+						>
+							<img
+								src={img}
+								alt={`product-${index}`}
+								className="w-full h-full object-cover"
+							/>
+
+							{/* Remove Button */}
+							<button
+								type="button"
+								onClick={() =>
+									setImages((prev) =>
+										prev.filter(
+											(_, i) => i !== index
+										)
+									)
+								}
+								className="absolute top-1 right-1 bg-red-600 text-black w-10 h-10 flex items-center justify-center rounded-full text-2xl hover:bg-red-700 shadow-lg"
+							>
+								×
+							</button>
+						</div>
+					))}
+				</div>
 
 				<div className="row">
 					<input

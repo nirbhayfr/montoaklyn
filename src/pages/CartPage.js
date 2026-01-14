@@ -135,7 +135,8 @@ function CartPage() {
 				<div className="bg-gray-200 rounded-md px-6 py-2 flex items-center justify-center gap-2">
 					<BadgePercent />
 					<span className="font-medium text-xs">
-						Yay !! Your total discount is ₹{discount}
+						Yay !! Your total discount is ₹
+						{discount + extraOff}
 					</span>
 				</div>
 			</div>

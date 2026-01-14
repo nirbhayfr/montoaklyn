@@ -3,7 +3,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import NotFoundPage from "./pages/NotFoundPage";
@@ -57,7 +57,13 @@ const App = () => {
 				</Route>
 
 				<Route element={<ProtectedRoutes roles={["ADMIN"]} />}>
+					import {Navigate} from "react-router-dom";
 					<Route path="/admin" element={<AdminLayout />}>
+						<Route
+							index
+							element={<Navigate to="home" replace />}
+						/>
+
 						<Route path="home" element={<AdminHome />} />
 						<Route
 							path="category"

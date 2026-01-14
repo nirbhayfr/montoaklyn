@@ -11,8 +11,10 @@ import {
 	Info,
 	Factory,
 	RefreshCcw,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NewProductCard from "../components/ui/ProductCard";
 import CustomerReviews from "../components/home/Reviews";
 import { useDispatch } from "react-redux";
@@ -68,6 +70,11 @@ function ShopDetailsPage() {
 
 	const [selectedSize, setSelectedSize] = useState(null);
 	const [openIndex, setOpenIndex] = useState(null);
+	const [currentIndex, setCurrentIndex] = useState(0);
+
+	useEffect(() => {
+		setCurrentIndex(0);
+	}, [product]);
 
 	const dispatch = useDispatch();
 
@@ -98,6 +105,22 @@ function ShopDetailsPage() {
 		}
 	};
 
+	const images = product.images || [];
+
+	const prevImage = () => {
+		setCurrentIndex((prev) =>
+			prev === 0 ? images.length - 1 : prev - 1
+		);
+	};
+
+	const nextImage = () => {
+		setCurrentIndex((prev) =>
+			prev === images.length - 1 ? 0 : prev + 1
+		);
+	};
+
+	if (!images.length) return null;
+
 	return (
 		<>
 			<Header />
@@ -114,15 +137,39 @@ function ShopDetailsPage() {
 			</div>
 
 			{/* Product Image */}
-			<div className="relative w-full h-[420px] md:h-[520px] bg-gray-100">
+			<div className="relative w-full h-[420px] md:h-[520px] bg-gray-100 rounded overflow-hidden">
+				{/* Current Image */}
 				<img
-					src={product.images[0]}
+					src={images[currentIndex]}
 					alt={product.title}
 					className="w-full h-full object-cover object-top"
 				/>
 
-				{/* Icons */}
-				<div className="absolute bottom-4 right-4 flex gap-3">
+				{/* Left / Right Arrows */}
+				{images.length > 1 && (
+					<>
+						<button
+							onClick={prevImage}
+							className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow hover:scale-110 transition"
+						>
+							<ChevronLeft size={20} />
+						</button>
+
+						<button
+							onClick={nextImage}
+							className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow hover:scale-110 transition"
+						>
+							<ChevronRight size={20} />
+						</button>
+					</>
+				)}
+
+				{/* Bottom Share / Index */}
+				<div className="absolute bottom-4 right-4 flex gap-3 items-center">
+					<span className="text-white text-xs bg-black/50 px-2 py-1 rounded">
+						{currentIndex + 1}/{images.length}
+					</span>
+
 					<button
 						className="p-2 bg-white rounded-full shadow hover:scale-105 transition"
 						onClick={handleShare}

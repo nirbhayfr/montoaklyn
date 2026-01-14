@@ -35,7 +35,6 @@ export const Register = () => {
 
 		try {
 			const res = await registerUser(payload);
-			console.log("Register Response:", res);
 
 			if (res.statusCode === 201) {
 				toast.success("🎉 Account created successfully!");
