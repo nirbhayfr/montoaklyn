@@ -81,7 +81,17 @@ function Profile() {
 					</div>
 
 					{/* Actions */}
-					<div className="mt-6">
+					{/* Actions */}
+					<div className="mt-6 space-y-2">
+						{user.role === "ADMIN" && (
+							<button
+								className="w-full border border-black py-2 rounded-lg bg-gray-800 text-white transition"
+								onClick={() => navigate("/admin/home")}
+							>
+								Visit Admin Panel
+							</button>
+						)}
+
 						<button
 							className="w-full border border-black py-2 rounded-lg bg-black text-white transition"
 							onClick={() => {

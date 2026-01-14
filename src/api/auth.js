@@ -1,5 +1,5 @@
-// const BASE_URL = "https://monto-backend.onrender.com/api/auth";
-const BASE_URL = "http://localhost:3001/api";
+const BASE_URL = "https://monto-backend.onrender.com/api/auth";
+// const BASE_URL = "http://localhost:3001/api";
 
 export async function registerUser(data) {
 	const res = await fetch(`${BASE_URL}/register`, {
