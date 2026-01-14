@@ -14,19 +14,19 @@ const cartSlice = createSlice({
 
 	reducers: {
 		addToCart(state, action) {
-			const existingProduct = state.data.find(
-				(product) =>
-					product.id === action.payload.id &&
-					product.size === action.payload.size
+			const { _id, size, quantity, price } = action.payload;
+
+			const item = state.data.find(
+				(p) => p._id === _id && p.size === size
 			);
 
-			if (existingProduct) {
-				existingProduct.quantity += action.payload.quantity;
+			if (item) {
+				item.quantity += quantity;
+				item.totalPrice = item.quantity * item.price;
 			} else {
 				state.data.push({
 					...action.payload,
-					totalPrice:
-						action.payload.price * action.payload.quantity,
+					totalPrice: price * quantity,
 				});
 			}
 
