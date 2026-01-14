@@ -2,18 +2,26 @@ import { useDispatch, useSelector } from "react-redux";
 import Footer from "../components/index/Footer";
 import { Header } from "../components/index/Header";
 import { ArrowLeft, BadgePercent, ChevronRight, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
 	decreaseQuantity,
 	increaseQuantity,
 	removeItem,
 } from "../redux/cartSlice";
 import NewProductCard from "../components/ui/ProductCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
+import { useState } from "react";
+
+const OFFERS = [
+	{ id: "OFF10", percentage: 10, minAmount: 850 },
+	{ id: "OFF15", percentage: 15, minAmount: 1700 },
+];
 
 function CartPage() {
 	const cart = useSelector((state) => state.cart.data);
 	const products = useProducts();
+	const [appliedOfferId, setAppliedOfferId] = useState(null);
 
 	const subTotal = cart.reduce(
 		(sum, item) => sum + item.price * item.quantity,
@@ -24,7 +32,16 @@ function CartPage() {
 		(sum, item) => sum + item.oldPrice * item.quantity,
 		0
 	);
-	const extraOff = Math.round(subTotal * 0.1);
+	const applicableOffer =
+		OFFERS.filter((offer) => subTotal >= offer.minAmount).sort(
+			(a, b) => b.percentage - a.percentage
+		)[0] || null;
+
+	const extraOff =
+		appliedOfferId && applicableOffer?.id === appliedOfferId
+			? Math.round((subTotal * applicableOffer.percentage) / 100)
+			: 0;
+
 	const discount = totalMrp - subTotal;
 
 	return (
@@ -43,40 +60,42 @@ function CartPage() {
 			</div>
 
 			{/* Best Price Box */}
-			<div className="relative border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-4 mt-6">
-				{/* Tag */}
-				<div
-					className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold text-white rounded-md uppercase"
-					style={{
-						background:
-							"linear-gradient(90deg, #EF2853, #FFA31A)",
-					}}
-				>
-					Best Price
-				</div>
-
-				{/* Left Content */}
-				<div className="flex gap-3">
-					<div className="mt-1 text-[#EF2853]">
-						<BadgePercent size={22} />
+			{subTotal >= 850 && (
+				<div className="relative border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-4 mt-6">
+					<div
+						className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold text-white rounded-md uppercase"
+						style={{
+							background:
+								"linear-gradient(90deg, #EF2853, #FFA31A)",
+						}}
+					>
+						Best Price
 					</div>
 
-					<div>
-						<p className="font-medium">
-							Get at ₹{subTotal - extraOff}
-						</p>
-						<p className="text-xs text-gray-500">
-							10% off on order above ₹{subTotal} <br />
-							T&amp;C applied
-						</p>
-					</div>
-				</div>
+					<div className="flex gap-3">
+						<div className="mt-1 text-[#EF2853]">
+							<BadgePercent size={22} />
+						</div>
 
-				{/* Right Button */}
-				<button className="px-2 py-1 border border-green-600 text-green-700 bg-green-50 rounded-md text-sm font-medium whitespace-nowrap">
-					Extra ₹{extraOff} OFF
-				</button>
-			</div>
+						<div>
+							<p className="font-medium">
+								Get at ₹{subTotal - extraOff}
+							</p>
+							<p className="text-xs text-gray-500">
+								{applicableOffer.percentage}% off on
+								orders above ₹
+								{applicableOffer.minAmount}
+								<br />
+								T&amp;C applied
+							</p>
+						</div>
+					</div>
+
+					<button className="px-2 py-1 border border-green-600 text-green-700 bg-green-50 rounded-md text-sm font-medium">
+						Extra ₹{extraOff} OFF
+					</button>
+				</div>
+			)}
 
 			<div className="flex flex-col gap-3">
 				{cart.map((product) => (
@@ -108,7 +127,7 @@ function CartPage() {
 
 				<div className="flex justify-between font-semibold">
 					<span>Total Amount</span>
-					<span>₹{subTotal}</span>
+					<span>₹{subTotal - extraOff}</span>
 				</div>
 			</div>
 
@@ -128,15 +147,31 @@ function CartPage() {
 					<div className="flex justify-between items-start pr-2">
 						<div>
 							<p className="font-semibold">
-								Extra 15% OFF
+								{applicableOffer
+									? `Extra ${applicableOffer.percentage}% OFF`
+									: "Offers Available"}
 							</p>
+
 							<p className="text-gray-600 mt-3 text-xs">
-								15% off upto ₹150 on minimum purchase of
-								₹300
+								{applicableOffer
+									? `${applicableOffer.percentage}% off on minimum purchase of ₹${applicableOffer.minAmount}`
+									: "Shop more to unlock discounts"}
 							</p>
 						</div>
 
-						<button className="border border-black text-black px-3 py-1 rounded text-xs font-medium hover:bg-black hover:text-white transition">
+						<button
+							disabled={!applicableOffer}
+							onClick={() => {
+								setAppliedOfferId(applicableOffer.id);
+								toast.success("Offer applied");
+							}}
+							className={`border px-3 py-1 rounded text-xs font-medium transition
+							${
+								applicableOffer
+									? "border-black text-black hover:bg-black/10"
+									: "border-gray-400 text-gray-400 cursor-not-allowed"
+							}`}
+						>
 							APPLY
 						</button>
 					</div>
@@ -173,7 +208,10 @@ function CartPage() {
 			<div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-2 flex items-center justify-between">
 				{/* Amount */}
 				<div>
-					<p className="text-base font-semibold">₹{subTotal}</p>
+					<p className="text-base font-semibold">
+						₹{subTotal - extraOff}
+					</p>
+
 					<p className="text-xs text-gray-500">
 						Total Payable Amount
 					</p>
@@ -183,6 +221,16 @@ function CartPage() {
 				{subTotal !== 0 && (
 					<Link
 						to="/checkout"
+						onClick={() => {
+							localStorage.setItem(
+								"appliedDiscount",
+								JSON.stringify({
+									extraOff,
+									appliedOfferId,
+									subTotal,
+								})
+							);
+						}}
 						className="bg-black text-white px-6 py-2 text-sm font-medium"
 					>
 						Proceed to Buy
@@ -199,6 +247,7 @@ export default CartPage;
 
 const CartItem = ({ product }) => {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
 	return (
 		<div className="relative flex gap-4 border border-gray-200 rounded-md p-3">
@@ -208,6 +257,7 @@ const CartItem = ({ product }) => {
 					src={product.images[0]}
 					alt={product.title}
 					className="w-full h-full object-cover rounded object-top"
+					onClick={() => navigate(`/details/${product._id}`)}
 				/>
 
 				{/* Rating */}
@@ -273,9 +323,35 @@ const CartItem = ({ product }) => {
 						</button>
 					</div>
 
-					<span className="text-xs font-medium border border-gray-300 rounded px-2 py-1">
-						{product.size}
-					</span>
+					<select
+						defaultValue={product.size}
+						onChange={(e) => {
+							const newSize = e.target.value;
+
+							const cart =
+								JSON.parse(
+									localStorage.getItem("cart")
+								) || [];
+
+							const updatedCart = cart.map((item) =>
+								item._id === product._id
+									? { ...item, size: newSize }
+									: item
+							);
+
+							localStorage.setItem(
+								"cart",
+								JSON.stringify(updatedCart)
+							);
+						}}
+						className="text-xs font-medium border border-gray-300 rounded px-2 py-1 bg-white"
+					>
+						{product.sizes.map((size) => (
+							<option key={size} value={size}>
+								{size}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 

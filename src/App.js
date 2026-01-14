@@ -26,11 +26,13 @@ import CartPage from "./pages/CartPage";
 import Profile from "./pages/Profile";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminOrders from "./pages/admin/AdminOrders";
+import ScrollToTop from "./components/ui/ScrollToTop";
 
 const App = () => {
 	return (
 		<BrowserRouter>
 			<Toaster position="bottom-right" />
+			<ScrollToTop />
 
 			<Routes>
 				<Route path="/login" element={<Login />} />

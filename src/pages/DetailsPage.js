@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { Header } from "../components/index/Header";
 import Footer from "../components/index/Footer";
@@ -67,7 +67,6 @@ function ShopDetailsPage() {
 	const product = productById.product;
 
 	const [selectedSize, setSelectedSize] = useState(null);
-	const [pincode, setPincode] = useState("");
 	const [openIndex, setOpenIndex] = useState(null);
 
 	const dispatch = useDispatch();
@@ -77,19 +76,27 @@ function ShopDetailsPage() {
 			<>
 				<Header />
 				<div className="min-h-[60vh] flex items-center justify-center text-lg">
-					Product not found
+					Loading ...
 				</div>
 				<Footer />
 			</>
 		);
 	}
 
-	console.log(product);
-
 	const discountPercent = Math.round(
 		((product.oldPrice - product.price) / product.oldPrice) * 100
 	);
 	const extraOff = Math.round(product.price * 0.1);
+
+	const handleShare = async () => {
+		try {
+			const url = window.location.href;
+			await navigator.clipboard.writeText(url);
+			toast.success("Link copied to clipboard");
+		} catch (err) {
+			toast.error("Failed to copy link");
+		}
+	};
 
 	return (
 		<>
@@ -116,11 +123,11 @@ function ShopDetailsPage() {
 
 				{/* Icons */}
 				<div className="absolute bottom-4 right-4 flex gap-3">
-					<button className="p-2 bg-white rounded-full shadow hover:scale-105 transition">
+					<button
+						className="p-2 bg-white rounded-full shadow hover:scale-105 transition"
+						onClick={handleShare}
+					>
 						<Share2 size={18} />
-					</button>
-					<button className="p-2 bg-white rounded-full shadow hover:scale-105 transition">
-						<Copy size={18} />
 					</button>
 				</div>
 			</div>
@@ -148,41 +155,48 @@ function ShopDetailsPage() {
 				</p>
 
 				{/* Best Price Box */}
-				<div className="relative border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-4 mt-6">
-					{/* Tag */}
-					<div
-						className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold text-white rounded-md uppercase"
-						style={{
-							background:
-								"linear-gradient(90deg, #EF2853, #FFA31A)",
-						}}
+				{product.price >= 850 ? (
+					<Link
+						to="/cart"
+						className="relative border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-2 mt-6"
 					>
-						Best Price
-					</div>
-
-					{/* Left Content */}
-					<div className="flex gap-3">
-						<div className="mt-1 text-[#EF2853]">
-							<BadgePercent size={22} />
+						{/* Tag */}
+						<div
+							className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold text-white rounded-md uppercase"
+							style={{
+								background:
+									"linear-gradient(90deg, #EF2853, #FFA31A)",
+							}}
+						>
+							Best Price
 						</div>
 
-						<div>
-							<p className="font-medium">
-								Get at ₹{product.price - extraOff}
-							</p>
-							<p className="text-xs text-gray-500">
-								10% off on order above ₹{product.price}{" "}
-								<br />
-								T&amp;C applied
-							</p>
-						</div>
-					</div>
+						{/* Left Content */}
+						<div className="flex gap-3">
+							<div className="mt-1 text-[#EF2853]">
+								<BadgePercent size={22} />
+							</div>
 
-					{/* Right Button */}
-					<button className="px-2 py-1 border border-green-600 text-green-700 bg-green-50 rounded-md text-sm font-medium whitespace-nowrap">
-						Extra ₹{extraOff} OFF
-					</button>
-				</div>
+							<div>
+								<p className="font-medium">
+									Get at ₹{product.price - extraOff}
+								</p>
+								<p className="text-[.7rem] text-gray-500">
+									10% off on order above 850
+									<br />
+									T&amp;C applied
+								</p>
+							</div>
+						</div>
+
+						{/* Right Button */}
+						<button className="px-2 py-1 border border-green-600 text-green-700 bg-green-50 rounded-md text-xs font-medium whitespace-nowrap">
+							Extra ₹{extraOff} OFF
+						</button>
+					</Link>
+				) : (
+					<></>
+				)}
 
 				{/* Size Manager */}
 				<div className="flex items-center justify-between my-3">
@@ -207,24 +221,6 @@ function ShopDetailsPage() {
 							{size}
 						</button>
 					))}
-				</div>
-
-				{/* Pincode checks */}
-				<div className="my-6">
-					<p className="font-medium mb-2">Check Delivery</p>
-
-					<div className="flex max-w-sm">
-						<input
-							type="text"
-							value={pincode}
-							onChange={(e) => setPincode(e.target.value)}
-							placeholder="Enter your pincode"
-							className="flex-1 border border-gray-800 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:border-black"
-						/>
-						<button className="px-4 border border-black rounded-r-md text-sm font-medium">
-							Check
-						</button>
-					</div>
 				</div>
 
 				{/* Service Highlights */}
@@ -418,6 +414,11 @@ function ShopDetailsPage() {
 					className="w-full bg-black text-white py-3 rounded-md font-medium"
 					onClick={(e) => {
 						e.preventDefault();
+						if (selectedSize === null) {
+							toast.warning("Please select a size");
+							return;
+						}
+
 						dispatch(
 							addToCart({
 								...product,
@@ -425,7 +426,7 @@ function ShopDetailsPage() {
 								size: selectedSize,
 							})
 						);
-
+						setSelectedSize(null);
 						toast.success("Added to cart");
 					}}
 				>

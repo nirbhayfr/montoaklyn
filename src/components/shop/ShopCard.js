@@ -50,6 +50,7 @@ export default function ShopCard({ product }) {
 								addToCart({
 									...product,
 									quantity: 1,
+									size: product.sizes[0],
 								})
 							);
 

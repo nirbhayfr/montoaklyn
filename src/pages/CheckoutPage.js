@@ -10,6 +10,10 @@ export const CheckoutPage = () => {
 	const navigate = useNavigate();
 	// const SCRIPT_URL =
 	// 	"https://script.google.com/macros/s/AKfycbwb5APRylVF9qNBPNyfMT80KyL3WC6km1lvLErTE8-Oxb8vuvM1zQLby8ZdQYNH34Wy/exec";
+	const discountData =
+		JSON.parse(localStorage.getItem("appliedDiscount")) || {};
+
+	const { extraOff = 0 } = discountData;
 
 	const [billing, setBilling] = useState({
 		firstName: "",
@@ -81,6 +85,7 @@ export const CheckoutPage = () => {
 			products: cart.map((item) => ({
 				product: item._id,
 				quantity: item.quantity,
+				size: item.size,
 			})),
 			shippingAddress: {
 				fullName: `${billing.firstName} ${billing.lastName}`,
@@ -91,6 +96,7 @@ export const CheckoutPage = () => {
 				state: billing.state,
 				postalCode: billing.zipcode,
 			},
+			discount: extraOff,
 		};
 
 		// try {
@@ -113,6 +119,7 @@ export const CheckoutPage = () => {
 
 			setTimeout(() => {
 				localStorage.removeItem("cart");
+				localStorage.removeItem("appliedDiscount");
 				navigate("/order-confirmed");
 			}, 1200);
 		} catch (err) {
@@ -218,7 +225,7 @@ export const CheckoutPage = () => {
 
 						<div className="flex justify-between font-semibold text-base">
 							<span>Total</span>
-							<span>₹{subTotal}</span>
+							<span>₹{subTotal - extraOff}</span>
 						</div>
 					</aside>
 				</div>

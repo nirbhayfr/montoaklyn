@@ -58,6 +58,8 @@ export default function AdminOrders() {
 		})
 		.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+	console.log(filteredOrders);
+
 	return (
 		<div className="p-6 space-y-6">
 			<h2 className="text-xl font-semibold">All Orders</h2>
@@ -110,6 +112,9 @@ export default function AdminOrders() {
 							</p>
 							<p className="text-xs text-gray-500">
 								Placed on {formatDate(order.createdAt)}
+							</p>
+							<p className="text-xs text-gray-500">
+								Discount: ₹{order.discount}
 							</p>
 						</div>
 
@@ -182,6 +187,7 @@ export default function AdminOrders() {
 										</p>
 										<p>Price: ₹{p.price}</p>
 										<p>Quantity: {p.quantity}</p>
+										<p>Size: {p.size}</p>
 										<p>Subtotal: ₹{p.subtotal}</p>
 										<p className="text-xs text-gray-500">
 											Product ID: {p.product}
