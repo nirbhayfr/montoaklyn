@@ -15,33 +15,23 @@ const cartSlice = createSlice({
 	reducers: {
 		addToCart(state, action) {
 			const existingProduct = state.data.find(
-				(product) => product.id === action.payload.id
+				(product) =>
+					product.id === action.payload.id &&
+					product.size === action.payload.size
 			);
 
 			if (existingProduct) {
-				const tempCart = state.data.map((product) => {
-					if (product.id === action.payload.id) {
-						let newQty =
-							product.quantity + action.payload.quantity;
-						let newTotalPrice = newQty * product.price;
-
-						return {
-							...product,
-							quantity: newQty,
-							totalPrice: newTotalPrice,
-						};
-					} else {
-						return product;
-					}
-				});
-				state.data = tempCart;
-				storeInLocalStorage(state.data);
+				existingProduct.quantity += action.payload.quantity;
 			} else {
-				state.data.push(action.payload);
-				storeInLocalStorage(state.data);
+				state.data.push({
+					...action.payload,
+					totalPrice:
+						action.payload.price * action.payload.quantity,
+				});
 			}
-		},
 
+			storeInLocalStorage(state.data);
+		},
 		updateQuantity: (state, action) => {
 			const { id, quantity } = action.payload;
 
